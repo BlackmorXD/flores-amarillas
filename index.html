@@ -143,9 +143,9 @@
         <h2>¡Tus flores amarillas!</h2>
     </div>
 
-    <!-- Etiqueta de audio mejorada -->
+    <!-- Audio con enlace directo en la nube estable -->
     <audio id="bg-audio" preload="auto" loop>
-        <source src="florecita.mp3" type="audio/mpeg">
+        <source src="https://raw.githubusercontent.com/Mikezz05/dulceria-proyecto/main/florecita.mp3" type="audio/mpeg">
         Tu navegador no soporta audio.
     </audio>
 
@@ -161,17 +161,14 @@
         const bgAudio = document.getElementById('bg-audio');
 
         function startExperience() {
-            // Forzar carga y reproducción del audio vinculada al toque del botón
             bgAudio.volume = 1.0;
             let playPromise = bgAudio.play();
 
             if (playPromise !== undefined) {
                 playPromise.then(_ => {
-                    // Audio reproduciéndose con éxito
                     console.log("Audio reproduciendo correctamente");
                 }).catch(error => {
                     console.log("Error al reproducir audio: ", error);
-                    alert("Por favor haz clic en la pantalla para activar la música.");
                 });
             }
 
