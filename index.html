@@ -143,9 +143,8 @@
         <h2>¡Tus flores amarillas!</h2>
     </div>
 
-    <!-- Audio con enlace directo en la nube estable -->
     <audio id="bg-audio" preload="auto" loop>
-        <source src="https://raw.githubusercontent.com/Mikezz05/dulceria-proyecto/main/florecita.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
         Tu navegador no soporta audio.
     </audio>
 
@@ -153,24 +152,46 @@
         let clickCount = 0;
         const maxClicks = 5;
         let gameFinished = false;
-        
+        let audioStarted = false;
+
         const welcomeScreen = document.getElementById('welcome-screen');
         const instructions = document.getElementById('instructions');
         const counterSpan = document.getElementById('counter');
         const finalContainer = document.getElementById('final-container');
         const bgAudio = document.getElementById('bg-audio');
 
-        function startExperience() {
+        function playAudio() {
+            if (audioStarted) return;
+
             bgAudio.volume = 1.0;
-            let playPromise = bgAudio.play();
+            bgAudio.muted = false;
+            bgAudio.currentTime = 0;
+
+            const playPromise = bgAudio.play();
 
             if (playPromise !== undefined) {
-                playPromise.then(_ => {
-                    console.log("Audio reproduciendo correctamente");
-                }).catch(error => {
-                    console.log("Error al reproducir audio: ", error);
-                });
+                playPromise
+                    .then(() => {
+                        audioStarted = true;
+                        console.log('Audio reproduciendo correctamente');
+                    })
+                    .catch((error) => {
+                        console.log('Audio bloqueado por el navegador:', error);
+
+                        const retryAudio = () => {
+                            if (audioStarted) return;
+                            bgAudio.play().then(() => {
+                                audioStarted = true;
+                            }).catch(() => {});
+                        };
+
+                        document.body.addEventListener('click', retryAudio, { once: true });
+                    });
             }
+        }
+
+        function startExperience() {
+            playAudio();
 
             welcomeScreen.style.opacity = '0';
             setTimeout(() => {
