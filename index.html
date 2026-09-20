@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tus Flores Amarillas 🌻</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fefcea 0%, #f1f8b6 100%);
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* Pantalla de inicio para activar el audio */
+        #welcome-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.5s ease;
+        }
+
+        #welcome-screen h1 {
+            color: #d4ac0d;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .btn-start {
+            background-color: #f1c40f;
+            color: #fff;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(241, 196, 15, 0.4);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .btn-start:hover {
+            background-color: #d4ac0d;
+            transform: scale(1.05);
+        }
+
+        /* Instrucciones y contador */
+        #instructions {
+            position: absolute;
+            top: 30px;
+            font-size: 1.2rem;
+            color: #7d6608;
+            font-weight: 600;
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Flores pequeñas que aparecen con el clic */
+        .click-flower {
+            position: absolute;
+            font-size: 2rem;
+            animation: floatUp 1.2s ease-out forwards;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -150px) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Contenedor del Gran Girasol Final */
+        #final-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 20;
+            animation: fadeIn 1s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .big-sunflower {
+            font-size: 7rem;
+            animation: bounce 2s infinite ease-in-out;
+            margin-bottom: 20px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        #final-container h2 {
+            font-size: 2.5rem;
+            color: #b7950b;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pantalla de bienvenida -->
+    <div id="welcome-screen">
+        <h1>🌻 Tienes una sorpresa pendiente... 🌻</h1>
+        <button class="btn-start" onclick="startExperience()">Presiona aquí</button>
+    </div>
+
+    <!-- Instrucciones -->
+    <div id="instructions">Haz clic en la pantalla 5 veces<br>(<span id="counter">0</span>/5)</div>
+
+    <!-- Girasol grande final -->
+    <div id="final-container">
+        <div class="big-sunflower">🌻</div>
+        <h2>¡Tus flores amarillas!</h2>
+    </div>
+
+    <!-- Audio local (busca el archivo florecita.mp3 en la misma carpeta) -->
+    <audio id="bg-audio" loop>
+        <source src="florecita.mp3" type="audio/mpeg">
+        Tu navegador no soporta audio.
+    </audio>
+
+    <script>
+        let clickCount = 0;
+        const maxClicks = 5;
+        let gameFinished = false;
+        
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const instructions = document.getElementById('instructions');
+        const counterSpan = document.getElementById('counter');
+        const finalContainer = document.getElementById('final-container');
+        const bgAudio = document.getElementById('bg-audio');
+
+        function startExperience() {
+            welcomeScreen.style.opacity = '0';
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+            }, 500);
+
+            // Reproducir el archivo de audio local
+            bgAudio.volume = 0.9;
+            bgAudio.play().catch(error => {
+                console.log("Audio autoplay bloqueado o error: ", error);
+            });
+        }
+
+        // Registrar los clics en la pantalla
+        document.addEventListener('click', function(e) {
+            if (welcomeScreen.style.display !== 'none' || gameFinished) return;
+
+            clickCount++;
+            counterSpan.textContent = clickCount;
+
+            // Crear flor amarilla en las coordenadas del clic
+            createFlower(e.clientX, e.clientY);
+
+            // Si llega a 5 clics, mostrar el gran girasol
+            if (clickCount >= maxClicks) {
+                gameFinished = true;
+                instructions.style.display = 'none';
+                setTimeout(() => {
+                    finalContainer.style.display = 'flex';
+                }, 400);
+            }
+        });
+
+        function createFlower(x, y) {
+            const flower = document.createElement('div');
+            flower.classList.add('click-flower');
+            flower.innerHTML = '🌼';
+            flower.style.left = x + 'px';
+            flower.style.top = y + 'px';
+            document.body.appendChild(flower);
+
+            setTimeout(() => {
+                flower.remove();
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
