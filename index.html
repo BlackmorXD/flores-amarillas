@@ -24,7 +24,6 @@
             cursor: pointer;
         }
 
-        /* Pantalla de inicio para activar el audio */
         #welcome-screen {
             position: absolute;
             top: 0;
@@ -66,7 +65,6 @@
             transform: scale(1.05);
         }
 
-        /* Instrucciones y contador */
         #instructions {
             position: absolute;
             top: 30px;
@@ -78,7 +76,6 @@
             pointer-events: none;
         }
 
-        /* Flores pequeñas que aparecen con el clic */
         .click-flower {
             position: absolute;
             font-size: 2rem;
@@ -98,7 +95,6 @@
             }
         }
 
-        /* Contenedor del Gran Girasol Final */
         #final-container {
             display: none;
             flex-direction: column;
@@ -135,23 +131,20 @@
 </head>
 <body>
 
-    <!-- Pantalla de bienvenida -->
     <div id="welcome-screen">
         <h1>🌻 Tienes una sorpresa pendiente... 🌻</h1>
         <button class="btn-start" onclick="startExperience()">Presiona aquí</button>
     </div>
 
-    <!-- Instrucciones -->
     <div id="instructions">Haz clic en la pantalla 5 veces<br>(<span id="counter">0</span>/5)</div>
 
-    <!-- Girasol grande final -->
     <div id="final-container">
         <div class="big-sunflower">🌻</div>
         <h2>¡Tus flores amarillas!</h2>
     </div>
 
-    <!-- Audio local (busca el archivo florecita.mp3 en la misma carpeta) -->
-    <audio id="bg-audio" loop>
+    <!-- Etiqueta de audio mejorada -->
+    <audio id="bg-audio" preload="auto" loop>
         <source src="florecita.mp3" type="audio/mpeg">
         Tu navegador no soporta audio.
     </audio>
@@ -168,29 +161,34 @@
         const bgAudio = document.getElementById('bg-audio');
 
         function startExperience() {
+            // Forzar carga y reproducción del audio vinculada al toque del botón
+            bgAudio.volume = 1.0;
+            let playPromise = bgAudio.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Audio reproduciéndose con éxito
+                    console.log("Audio reproduciendo correctamente");
+                }).catch(error => {
+                    console.log("Error al reproducir audio: ", error);
+                    alert("Por favor haz clic en la pantalla para activar la música.");
+                });
+            }
+
             welcomeScreen.style.opacity = '0';
             setTimeout(() => {
                 welcomeScreen.style.display = 'none';
             }, 500);
-
-            // Reproducir el archivo de audio local
-            bgAudio.volume = 0.9;
-            bgAudio.play().catch(error => {
-                console.log("Audio autoplay bloqueado o error: ", error);
-            });
         }
 
-        // Registrar los clics en la pantalla
         document.addEventListener('click', function(e) {
             if (welcomeScreen.style.display !== 'none' || gameFinished) return;
 
             clickCount++;
             counterSpan.textContent = clickCount;
 
-            // Crear flor amarilla en las coordenadas del clic
             createFlower(e.clientX, e.clientY);
 
-            // Si llega a 5 clics, mostrar el gran girasol
             if (clickCount >= maxClicks) {
                 gameFinished = true;
                 instructions.style.display = 'none';
